@@ -5,8 +5,8 @@ import sequtils
 import sugar
 import pnm
 
+import random
 
-import binaryparse
 
 type
   Client* = object
@@ -23,18 +23,6 @@ type
     x*: int
     y*: int
     z*: int
-
-proc `$`*(p: RGBPixel): string =
-  ## String-ification of the RGBPixel type
-  ## to be used when creating the PPM file
-  result = @[p.red, p.green, p.blue].map(x => $x).join(" ")
-  result = " " & result & " "
-
-    
-proc `$`*(o: Offset): string =
-  ## String-ification of the Offset type
-  ## to be used when creating the PPM file
-  return fmt"#FT: {o.x} {o.y} {o.z}"
  
 proc newClient*(address: string, port: int): Client =
   ## Simply creates a new Flaschen-Taschen client
@@ -47,16 +35,28 @@ proc newClient*(address: string, port: int): Client =
     port: port.Port,
   )
 
-proc sendDatagram*(c: Client , packet: PPM)=
+proc sendDatagram*(c: Client , packet: PPM, offset: Offset = Offset())=
+    ## Takes a PPM packet, adds the offset, then adds sends it via the client
+    ## Args:
+    ##   client: the client that holds the socket information
+    ##   packet: the PPM data
+    ##   offset: the offset to use
+
+    ## Conver the PPM to P6 format
     var format = packet.formatP6 
-    # format.add('\n'.uint8)
-    # format.add(50.uint8)
-    # format.add('\n'.uint8)
-    # format.add(50.uint8)
-    # format.add('\n'.uint8)
-    # format.add(10.uint8)
-    # echo format
-    c.socket.sendTo(c.address, c.port, format.addr, format.len)
+
+    ## We need to send the offset as
+    for item in @[offset.x, offset.y, offset.z]:
+      # Convert item to a string, then to chars, then to uints
+      format.add('\n'.uint8)
+      let
+        strItem = $item
+        uints = strItem.map(x => x.char).map(x => x.uint8)
+
+      for num in uints:
+        format.add(num)
+
+    c.socket.sendTo(c.address, c.port, format[0].addr, format.len)
 
 proc makePPM*(c: Client, height, width: int, data: seq[RGBPixel], offset: Offset = Offset()): PPM =
   var ppmBody = newSeq[uint8]()

@@ -13,34 +13,24 @@ when isMainModule:
   addHandler(newFileLogger(defaultLog, fmtStr = verboseFmtStr))
   info("Starting client")
   let
-    client = newClient("localhost", 1337)
-    width = 5
-    height = 5
+    client = newClient("ft.noise", 1337)
+    width = 20
+    height = 20
     maxpixels = width * height
 
   var pixels = newSeq[RGBPixel](maxpixels)
 
-  let repeat =false 
+  let repeat = true
 
   while true:
 
     for i in 0 ..< maxpixels:
       pixels[i] = RGBPixel(red: rand(255), green: rand(255), blue: rand(255))
 
-    #let offset = Offset(x: rand(10), y: rand(10), z: 10)
-    var data = client.makePPM(height, width, pixels) # offset)
-    client.sendDatagram(data)
+    let data = client.makePPM(height, width, pixels)
+    let offset = Offset(x: 10, y: 10, z: 4)
 
-    var s = open("test.ppm", fmWrite)
-    s.writePPM(data)
-    s.close()
-
-    s = open("test.ppm", fmRead)
-    let ppm = s.readPPM()
-    s.close()
-
-    echo data.formatP6
-    echo ppm.formatP6
+    client.sendDatagram(data, offset)
 
     if repeat:
       sleep(100)
