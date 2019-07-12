@@ -1,8 +1,8 @@
 # Package
 
 version       = "0.1.0"
-author        = "Alexander Johnson"
-description   = "A new awesome nimble package"
+author        = "Xander Johnson @metasyn"
+description   = "A client for the Flaschen-Taschen at Noisebridge"
 license       = "MIT"
 srcDir        = "src"
 installExt    = @["nim"]
@@ -13,3 +13,4 @@ backend       = "cpp"
 # Dependencies
 
 requires "nim >= 0.20.9"
+requires "pnm >= 1.1.1"

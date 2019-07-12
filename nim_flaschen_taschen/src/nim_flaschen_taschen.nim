@@ -28,7 +28,7 @@ when isMainModule:
       pixels[i] = RGBPixel(red: rand(255), green: rand(255), blue: rand(255))
 
     let data = client.makePPM(height, width, pixels)
-    let offset = Offset(x: 10, y: 10, z: 4)
+    let offset = Offset(x: 0, y: 0, z: 4)
 
     client.sendDatagram(data, offset)
 
