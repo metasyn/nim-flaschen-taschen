@@ -49,7 +49,7 @@ proc sendDatagram*(c: Client , packet: PPM, offset: Offset = Offset())=
     ##   offset: the offset to use
 
     ## Conver the PPM to P6 format
-    var format = packet.formatP6 
+    var format = packet.formatP6
 
     ## We need to send the offset as
     for item in @[offset.x, offset.y, offset.z]:
