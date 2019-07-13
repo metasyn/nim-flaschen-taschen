@@ -1,17 +1,34 @@
-import logging
-import random
-import os
-import streams
-import pnm
-import net
-import strformat
-import strutils
-import sequtils
-import sugar
-import pnm
-import random
+# Stdlib
+import logging, random, os, streams, net, strformat, strutils, sequtils, sugar, random
+
+# Em xternal
+import pnm, docopt
 
 const defaultLog = "/tmp/nim-flaschen-taschen.log"
+
+let doc = """
+nim_flaschen_taschen: nim client to the flaschen taschen at noisebridge
+
+
+Usage:
+    nim_flaschen_taschen send <pattern> [--width=<int>] [--height=<int>] [--x=<int>] [--y=<int>] [--z=<int>] [--host=<string>] [--port=<int>]
+    nim_flaschen_taschen (-h | --help)
+    nim_flaschen_taschen --version
+
+Args:
+    <pattern>             The pattern to display - one of: random
+
+Options:
+    --host=<string>       Host to use [default: ft.noise]
+    --port=<int>          Port to use [default: 1337]
+    --width=<int>         Width to use [default: 45]
+    --height=<int>        Width to use [default: 45]
+    --x=<int>             X value of the offset [default: 0]
+    --y=<int>             Y value of the offset [default: 0]
+    --z=<int>             Z value of the offset [default: 1]
+    -h --help             Show this screen.
+    --version             Show the version.
+"""
 
 
 type
@@ -74,31 +91,45 @@ proc makePPM*(c: Client, height, width: int, data: seq[RGBPixel], offset: Offset
   result = newPPM(ppmFileDiscriptorP6, width, height, ppmBody)
 
 when isMainModule:
-  randomize()
   addHandler(newFileLogger(defaultLog, fmtStr = verboseFmtStr))
-  info("Starting client")
-  let
-    client = newClient("ft.noise", 1337)
-    width = 20
-    height = 20
-    maxpixels = width * height
 
-  var pixels = newSeq[RGBPixel](maxpixels)
+  let args  = docopt(doc, version = "nim_flaschen_taschen 1.0")
+  echo args
 
-  let repeat = true
+  if args["send"]:
 
-  while true:
+    let
+      host = $args["--host"]
+      port = parseInt($args["--port"])
+      client = newClient(host, port)
+      width = parseInt($args["--width"])
+      height = parseInt($args["--height"])
+      x = parseInt($args["--x"])
+      y = parseInt($args["--y"])
+      z = parseInt($args["--z"])
+      maxpixels = width * height
 
-    for i in 0 ..< maxpixels:
-      pixels[i] = RGBPixel(red: rand(255), green: rand(255), blue: rand(255))
+    var pixels = newSeq[RGBPixel](maxpixels)
 
-    let data = client.makePPM(height, width, pixels)
-    let offset = Offset(x: 0, y: 0, z: 4)
+    let repeat = true
+    while true:
 
-    client.sendDatagram(data, offset)
+      case $args["<pattern>"]:
+        of "random": 
+          randomize()
+          for i in 0 ..< maxpixels:
+            pixels[i] = RGBPixel(red: rand(255), green: rand(255), blue: rand(255))
+        else:
+          echo "Unknown pattern."
 
-    if repeat:
-      sleep(100)
-    else:
-     break 
+
+      let data = client.makePPM(height, width, pixels)
+      let offset = Offset(x: x, y: y, z: z)
+
+      client.sendDatagram(data, offset)
+
+      if repeat:
+        sleep(1000)
+      else:
+        break 
 
