@@ -94,7 +94,6 @@ when isMainModule:
   addHandler(newFileLogger(defaultLog, fmtStr = verboseFmtStr))
 
   let args  = docopt(doc, version = "nim_flaschen_taschen 1.0")
-  echo args
 
   if args["send"]:
 
