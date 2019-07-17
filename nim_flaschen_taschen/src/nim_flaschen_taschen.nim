@@ -219,7 +219,7 @@ proc walk(c: Client, height, width: int, offset: Offset) =
 
     let data = makePPM(height, width, matrix)
     c.sendDatagram(data, offset)
-    sleep(5)
+    sleep(15)
     
 
 
