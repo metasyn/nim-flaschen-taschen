@@ -1,5 +1,5 @@
 # Stdlib
-import logging, random, os, streams, net, strformat, strutils, sequtils, sugar, random
+import logging, random, os, streams, net, strformat, strutils, sequtils, sugar, random, math
 
 # External
 import pnm, docopt
@@ -16,7 +16,7 @@ Usage:
     nim_flaschen_taschen --version
 
 Args:
-    <pattern>             The pattern to display - one of: random
+    <pattern>             The pattern to display - one of: random, blank, walk
 
 Options:
     --host=<string>       Host to use [default: ft.noise]
@@ -116,6 +116,22 @@ proc blankMatrix*(height, width: int, transparent: bool = false): seq[seq[RGBPix
       for j in 0 ..< width:
         # Zero means transparent
         result[i][j] = RGBPixel(red: val, green: val, blue: val)
+
+
+## Color utils
+
+
+proc makeColorGradient(frequency1, frequency2, frequency3: float32, phase1, phase2, phase3, center = 100, width = 127, num: int = 50): seq[RGBPixel]=
+  result = newSeq[RGBPixel](num)
+  for i in 0 ..< num:
+    let
+      red = sin(frequency1 * i.float32 + phase1.float32) * width.float32 + center.float32
+      green = sin(frequency2 * i.float32 + phase2.float32) * width.float32 + center.float32
+      blue = sin(frequency3 * i.float32 + phase3.float32) * width.float32 + center.float32
+    result[i] = RGBPixel(red: red.trunc.int, green: green.trunc.int, blue: blue.trunc.int)
+
+proc pastels(): seq[RGBPixel] =
+  result = makeColorGradient(0.5, 0.5, 0.3, 0, 2, 4, 200, 50, 80);
   
 
 ## Patterns
@@ -149,15 +165,16 @@ proc walk(c: Client, height, width: int, offset: Offset) =
     # Row and column pointers
     i = 0
     j = 0
+    count = 0
 
   # Seed the first value
   matrix[i][j] = RGBPixel(red: rand(255), green: rand(255), blue: rand(255))
 
+  # Choose a rainbow color palette
+  let palette = pastels()
+
   while true:
     # Keep track of previous coordinate
-    let
-      p_i = i
-      p_j = j
 
     let choice = rand(1.0)
     # Left
@@ -176,27 +193,9 @@ proc walk(c: Client, height, width: int, offset: Offset) =
     i = (i + width) mod width
     j = (j + height) mod height
 
-    # Choose a previous RGB value
-    var pixel = matrix[p_i][p_j]
-    let
-      # Scenarios
-      rgbChoice = [0, 1, 2].sample() 
-      # Max pixel change
-      jump = rand(10)
-      # Go up or down
-      change = [jump, -1 * jump].sample()
-      # Min Brightness
-      minBrightness = 50
-
-    case rgbChoice:
-      of 0:
-        pixel.red = min(max(pixel.red + change, minBrightness), 255)
-      of 1:
-        pixel.green = min(max(pixel.red + change, minBrightness), 255)
-      else:
-        pixel.blue = min(max(pixel.red + change, minBrightness), 255)
-
-    matrix[i][j] = pixel
+    let color = palette[count mod palette.len]
+    count += 1
+    matrix[i][j] = color
 
     let data = makePPM(height, width, matrix)
     c.sendDatagram(data, offset)
@@ -230,7 +229,6 @@ when isMainModule:
         client.walk(height, width, offset)
       of "blank":
         client.blank(height, width, offset)
-
       else:
         echo "Unknown pattern."
 
