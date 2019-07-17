@@ -1,7 +1,7 @@
 # Stdlib
 import logging, random, os, streams, net, strformat, strutils, sequtils, sugar, random
 
-# Em xternal
+# External
 import pnm, docopt
 
 const defaultLog = "/tmp/nim-flaschen-taschen.log"
@@ -30,6 +30,7 @@ Options:
     --version             Show the version.
 """
 
+randomize()
 
 type
   Client* = object
@@ -81,7 +82,8 @@ proc sendDatagram*(c: Client , packet: PPM, offset: Offset = Offset())=
 
     c.socket.sendTo(c.address, c.port, format[0].addr, format.len)
 
-proc makePPM*(c: Client, height, width: int, data: seq[RGBPixel], offset: Offset = Offset()): PPM =
+proc makePPM*(height, width: int, data: seq[RGBPixel], offset: Offset = Offset()): PPM =
+  ## Takes a long array of seq[RGBPixel]
   var ppmBody = newSeq[uint8]()
   for i, p in data.pairs:
     ppmBody.add(p.red.uint8)
@@ -89,6 +91,118 @@ proc makePPM*(c: Client, height, width: int, data: seq[RGBPixel], offset: Offset
     ppmBody.add(p.blue.uint8)
 
   result = newPPM(ppmFileDiscriptorP6, width, height, ppmBody)
+
+proc makePPM*(height, width: int, data: seq[seq[RGBPixel]], offset: Offset = Offset()): PPM =
+  ## Takes a seq[seq[RGBPixel]] - basically a matrix
+  let count = height * width
+  var pixels = newSeq[RGBPixel](count)
+
+  for i, row in data.pairs:
+    let rowOffset = i * width
+    for j, pixel in row.pairs:
+      pixels[j + rowOffset] = pixel
+
+  result = makePPM(height, width, pixels, offset)
+
+proc blankMatrix*(height, width: int, transparent: bool = false): seq[seq[RGBPixel]] =
+  ## Gives you a blank matrix to use
+  var val = 1
+  if transparent:
+    val = 0
+
+  result = newSeq[seq[RGBPixel]](height)
+  for i in 0 ..< result.len:
+      result[i] = newSeq[RGBPixel](width)
+      for j in 0 ..< width:
+        # Zero means transparent
+        result[i][j] = RGBPixel(red: val, green: val, blue: val)
+  
+
+## Patterns
+
+proc random(c: Client, height, width: int, offset: Offset) =
+  ## Each pixel is a random color.
+  let count = height * width
+  var pixels = newSeq[RGBPixel](count)
+  while true:
+      for i in 0 ..< count:
+          pixels[i] = RGBPixel(red: rand(255), green: rand(255), blue: rand(255))
+      let data = makePPM(height, width, pixels)
+      c.sendDatagram(data, offset)
+      sleep(1000)
+
+
+proc blank(c: Client, height, width: int, offset: Offset) =
+  let count = height * width
+  var pixels = newSeq[RGBPixel](count)
+  for i in 0..<count:
+    pixels[i] = RGBPixel(red: 1, green: 1, blue: 1)
+  let data = makePPM(height, width, pixels)
+  while true:
+    c.sendDatagram(data, offset)
+    sleep(1000)
+
+
+proc walk(c: Client, height, width: int, offset: Offset) =
+  var
+    matrix = blankMatrix(height, width, transparent=false)
+    # Row and column pointers
+    i = 0
+    j = 0
+
+  # Seed the first value
+  matrix[i][j] = RGBPixel(red: rand(255), green: rand(255), blue: rand(255))
+
+  while true:
+    # Keep track of previous coordinate
+    let
+      p_i = i
+      p_j = j
+
+    let choice = rand(1.0)
+    # Left
+    if choice <= 0.25:
+      i -= 1
+    # Right
+    elif choice <= 0.50:
+      i += 1
+    # Down
+    elif choice <= 0.75:
+      j -= 1
+    # Up
+    else:
+      j += 1
+
+    i = (i + width) mod width
+    j = (j + height) mod height
+
+    # Choose a previous RGB value
+    var pixel = matrix[p_i][p_j]
+    let
+      # Scenarios
+      rgbChoice = [0, 1, 2].sample() 
+      # Max pixel change
+      jump = rand(10)
+      # Go up or down
+      change = [jump, -1 * jump].sample()
+      # Min Brightness
+      minBrightness = 50
+
+    case rgbChoice:
+      of 0:
+        pixel.red = min(max(pixel.red + change, minBrightness), 255)
+      of 1:
+        pixel.green = min(max(pixel.red + change, minBrightness), 255)
+      else:
+        pixel.blue = min(max(pixel.red + change, minBrightness), 255)
+
+    matrix[i][j] = pixel
+
+    let data = makePPM(height, width, matrix)
+    c.sendDatagram(data, offset)
+    sleep(5)
+    
+
 
 when isMainModule:
   addHandler(newFileLogger(defaultLog, fmtStr = verboseFmtStr))
@@ -106,29 +220,18 @@ when isMainModule:
       x = parseInt($args["--x"])
       y = parseInt($args["--y"])
       z = parseInt($args["--z"])
-      maxpixels = width * height
-
-    var pixels = newSeq[RGBPixel](maxpixels)
-
-    let repeat = true
-    while true:
-
-      case $args["<pattern>"]:
-        of "random": 
-          randomize()
-          for i in 0 ..< maxpixels:
-            pixels[i] = RGBPixel(red: rand(255), green: rand(255), blue: rand(255))
-        else:
-          echo "Unknown pattern."
+      offset = Offset(x: x, y: y, z: z)
 
 
-      let data = client.makePPM(height, width, pixels)
-      let offset = Offset(x: x, y: y, z: z)
+    case $args["<pattern>"]:
+      of "random": 
+        client.random(height, width, offset)
+      of "walk":
+        client.walk(height, width, offset)
+      of "blank":
+        client.blank(height, width, offset)
 
-      client.sendDatagram(data, offset)
-
-      if repeat:
-        sleep(1000)
       else:
-        break 
+        echo "Unknown pattern."
+
 
