@@ -117,11 +117,29 @@ proc blankMatrix*(height, width: int, transparent: bool = false): seq[seq[RGBPix
         # Zero means transparent
         result[i][j] = RGBPixel(red: val, green: val, blue: val)
 
+proc dim*(pixel: RGBPixel, transparent: bool = false): RGBPixel =
+  var val = 1
+  if transparent:
+    val = 0
+  let
+    red = max(val, pixel.red - 1)
+    green = max(val, pixel.green - 1)
+    blue = max(val, pixel.blue - 1)
+  result = RGBPixel(red: red, green: green, blue: blue)
+
+proc dim*(matrix: var seq[seq[RGBPixel]], transparent: bool = false) =
+  let
+    height = matrix.high
+    width = matrix[0].high
+  for i in 0 ..< height:
+    for j in 0 ..< width:
+      matrix[i][j] = matrix[i][j].dim(transparent)
+
 
 ## Color utils
 
 
-proc makeColorGradient(frequency1, frequency2, frequency3: float32, phase1, phase2, phase3, center = 100, width = 127, num: int = 50): seq[RGBPixel]=
+proc makeColorGradient(frequency1, frequency2, frequency3: float32, phase1, phase2, phase3, center = 128, width = 127, num: int = 50): seq[RGBPixel]=
   result = newSeq[RGBPixel](num)
   for i in 0 ..< num:
     let
@@ -131,7 +149,8 @@ proc makeColorGradient(frequency1, frequency2, frequency3: float32, phase1, phas
     result[i] = RGBPixel(red: red.trunc.int, green: green.trunc.int, blue: blue.trunc.int)
 
 proc pastels(): seq[RGBPixel] =
-  result = makeColorGradient(0.5, 0.5, 0.3, 0, 2, 4, 200, 50, 80);
+  ## Gives you 100 pastels to use
+  result = makeColorGradient(0.5, 0.5, 0.3, 0, 2, 4, 170, 50, 100);
   
 
 ## Patterns
@@ -195,6 +214,7 @@ proc walk(c: Client, height, width: int, offset: Offset) =
 
     let color = palette[count mod palette.len]
     count += 1
+    matrix.dim()
     matrix[i][j] = color
 
     let data = makePPM(height, width, matrix)
