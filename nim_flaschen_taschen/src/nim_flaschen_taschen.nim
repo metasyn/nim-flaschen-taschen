@@ -14,12 +14,12 @@ nim_flaschen_taschen: nim client to the flaschen taschen at noisebridge
 
 
 Usage:
-    nim_flaschen_taschen send <pattern> [--width=<int>] [--height=<int>] [--x=<int>] [--y=<int>] [--z=<int>] [--host=<string>] [--port=<int>]
+    nim_flaschen_taschen pattern <pattern> [--width=<int>] [--height=<int>] [--x=<int>] [--y=<int>] [--z=<int>] [--host=<string>] [--port=<int>]
     nim_flaschen_taschen (-h | --help)
     nim_flaschen_taschen --version
 
 Args:
-    <pattern>             The pattern to display - one of: random, blank, walk
+    <pattern>             The pattern to display - one of: random, walk, blank
 
 Options:
     --host=<string>       Host to use [default: ft.noise]
