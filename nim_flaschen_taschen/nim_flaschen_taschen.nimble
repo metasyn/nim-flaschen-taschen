@@ -13,5 +13,5 @@ backend       = "cpp"
 # Dependencies
 
 requires "nim >= 0.20"
-requires "pnm >= 1.1.1"
+requires "pnm >= 2.0.0"
 requires "docopt >= 0.6.8"
