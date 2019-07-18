@@ -4,9 +4,6 @@ import logging, random, os, streams, net, strformat, strutils, sequtils, sugar, 
 # External
 import pnm, docopt
 
-# Local
-import ./grayscott
-
 const defaultLog = "/tmp/nim-flaschen-taschen.log"
 
 let doc = """
