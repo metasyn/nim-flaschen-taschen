@@ -1,6 +1,8 @@
 # nim-flaschen-taschen
 
 [![Build Status](https://travis-ci.org/metasyn/nim-flaschen-taschen.svg?branch=master)](https://travis-ci.org/metasyn/nim-flaschen-taschen)
+[![Build status](https://ci.appveyor.com/api/projects/status/idwd7eur948pdwsl?svg=true)](https://ci.appveyor.com/project/metasyn/nim-flaschen-taschen)
+
 
 A nim client for the [Flaschen Taschen](https://github.com/hzeller/flaschen-taschen) at [Noisebridge](https://noisebridge.net).
 
