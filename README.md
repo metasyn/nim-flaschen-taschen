@@ -53,6 +53,7 @@ nimble build
 - [ ] implement a way of sending a particular image via the CLI (such as:)
     - [ ] png 
     - [ ] jpg 
+    - [ ] gif
 
 - maybe we could use https://gitlab.com/define-private-public/stb_image-Nim ?
 - also see https://github.com/jangko/nimPNG
