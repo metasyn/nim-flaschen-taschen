@@ -35,7 +35,6 @@ Options:
 
 Install both by using [choosenim](https://github.com/dom96/choosenim).
 
-
 # Building
 
 ```bash
@@ -45,18 +44,35 @@ nimble build
 
 # Todo
 
+## General
 - [x] implement a CLI interface for sending simple patterns
+- [ ] add tests & setup CI
+
+## Image
+
 - [ ] implement a way of sending a particular image via the CLI (such as:)
-    - [ ] png
-    - [ ] jpg
+    - [ ] png 
+    - [ ] jpg 
+
+- maybe we could use https://gitlab.com/define-private-public/stb_image-Nim ?
+- also see https://github.com/jangko/nimPNG
+
+## Video
 - [ ] implement a way of sending videos via the CLI (such as:)
     - [ ] mpv4
     - [ ] mkv
     - [ ] avi
     - [ ] flv ?
-- [ ] add tests & setup CI
+- we might be able to use https://github.com/FFMS/ffms2
+- there is also https://github.com/achesak/nim-vidhdr for determing file formats
+
+## Publishing
 - [ ] publish binary for darwin/linux/windows
 - [ ] publish as a nimble package at https://nimble.directory
+
+## Documentation
+- [ ] generate nim docs around most important exports
+- [ ] create gh-pages splash/landing page
 
 # License
 
