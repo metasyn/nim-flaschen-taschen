@@ -90,7 +90,7 @@ proc makePPM*(height, width: int, data: seq[RGBPixel], offset: Offset = Offset()
     ppmBody.add(p.green.uint8)
     ppmBody.add(p.blue.uint8)
 
-  result = newPPM(ppmFileDiscriptorP6, width, height, ppmBody)
+  result = newPPM(ppmFileDescriptorP6, width, height, ppmBody)
 
 proc makePPM*(height, width: int, data: seq[seq[RGBPixel]], offset: Offset = Offset()): PPM =
   ## Takes a seq[seq[RGBPixel]] - basically a matrix
