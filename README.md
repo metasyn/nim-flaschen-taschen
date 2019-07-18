@@ -15,6 +15,13 @@ Install both by using [choosenim](https://github.com/dom96/choosenim).
 nimble build
 ```
 
+# TODOs
+
+- [ ] Accept text at `/text` => Send to FT as scrolling text
+- [ ] Accept image at `/img` => Send to FT as PPM image
+- [ ] Accept GIF at `/gif` => Send to FT as sequence of PPM images
+- [ ] Accept video at `/video` => Send to FT as sequence of PPM images
+
 # License
 
 MIT
