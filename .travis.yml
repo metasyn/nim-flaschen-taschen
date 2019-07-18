@@ -16,9 +16,6 @@ matrix:
     - os: osx
       env: CHANNEL=stable
       compiler: clang
-
-    - os: windows
-      env: CHANNEL=stable
     
 install:
   - export CHOOSENIM_NO_ANALYTICS=1
