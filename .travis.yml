@@ -1,0 +1,43 @@
+# Mostly copied from https://github.com/mratsim/Arraymancer/blob/master/.travis.yml
+language: c
+
+cache: ccache
+cache:
+  directories:
+  - .cache
+
+matrix:
+  include:
+    # Build and test against the master (stable) and devel branches of Nim
+    # Build and test using both gcc and clang
+    - os: linux
+      env: CHANNEL=stable
+      compiler: gcc
+
+    - os: linux
+      env: CHANNEL=devel
+      compiler: gcc
+
+    - os: osx
+      env: CHANNEL=stable
+      compiler: clang
+
+    - os: windows
+      env: CHANNEL=stable
+    
+install:
+  - export CHOOSENIM_NO_ANALYTICS=1
+  - curl https://nim-lang.org/choosenim/init.sh -sSf > init.sh
+  - sh init.sh -y
+  - export PATH=~/.nimble/bin:$PATH
+  - echo "export PATH=~/.nimble/bin:$PATH" >> ~/.profile
+  - choosenim $CHANNEL
+
+script:
+    - cd nim_flaschen_taschen
+    - nimble install -y
+    - nimble test
+
+branches:
+  except:
+    - gh-pages

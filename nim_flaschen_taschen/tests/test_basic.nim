@@ -7,6 +7,6 @@
 
 import unittest
 
-import nim_flaschen_taschenpkg/submodule
-test "correct welcome":
-  check getWelcomeMessage() == "Hello, World!"
+suite "Hello World":
+    test "Hello World":
+        echo "Hello World!"
