@@ -4,6 +4,9 @@ import logging, random, os, streams, net, strformat, strutils, sequtils, sugar, 
 # External
 import pnm, docopt
 
+# Local
+import ./grayscott
+
 const defaultLog = "/tmp/nim-flaschen-taschen.log"
 
 let doc = """
@@ -221,8 +224,6 @@ proc walk(c: Client, height, width: int, offset: Offset) =
     c.sendDatagram(data, offset)
     sleep(15)
     
-
-
 when isMainModule:
   addHandler(newFileLogger(defaultLog, fmtStr = verboseFmtStr))
 
