@@ -45,6 +45,7 @@ nimble build
 
 # Todo
 
+- [x] implement a CLI interface for sending simple patterns
 - [ ] implement a way of sending a particular image via the CLI (such as:)
     - [ ] png
     - [ ] jpg

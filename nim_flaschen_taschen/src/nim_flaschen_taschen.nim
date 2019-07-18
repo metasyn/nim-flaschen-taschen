@@ -226,7 +226,7 @@ when isMainModule:
 
   let args  = docopt(doc, version = "nim_flaschen_taschen 1.0")
 
-  if args["send"]:
+  if args["pattern"]:
 
     let
       host = $args["--host"]
