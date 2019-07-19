@@ -1,13 +1,9 @@
 version: 1.0.{build}
 image: Visual Studio 2017
-
-environment:
-  checkout: C:\projects\nim-flaschen-taschen
-  mount: C:\Temp
   
 
 install:
   - docker pull metasyn/nim-servercore
 
 build_script:
-  - docker run -v $env:checkout:$env:mount metasyn/nim-servercore "(cd C:\Temp\nim_flaschen_taschen) -and (nimble install) -and (nimble test)"
+  - docker run -v C:\projects\nim-flaschen-taschen:C:\Temp metasyn/nim-servercore "(cd C:\Temp\nim_flaschen_taschen) -and (nimble install) -and (nimble test)"
