@@ -46,6 +46,13 @@ cd nim_flaschen_taschen
 nimble build
 ```
 
+# Tests
+
+```bash
+cd nim_flaschen-taschen
+nimble test
+```
+
 # Todo
 
 ## General
