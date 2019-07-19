@@ -50,7 +50,8 @@ nimble build
 
 ## General
 - [x] implement a CLI interface for sending simple patterns
-- [ ] add tests & setup CI
+- [x] setup CI on osx, linux, windows
+- [ ] add unit tests
 
 ## Image
 
