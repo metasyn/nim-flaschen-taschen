@@ -16,13 +16,13 @@ Usage:
     nim_flaschen_taschen --version
 
 Args:
-    <pattern>             The pattern to display - one of: random, walk, blank
+    <pattern>             The pattern to display - one of: random, walk, squares, blank
 
 Options:
     --host=<string>       Host to use [default: ft.noise]
     --port=<int>          Port to use [default: 1337]
     --width=<int>         Width to use [default: 45]
-    --height=<int>        Width to use [default: 45]
+    --height=<int>        Width to use [default: 40]
     --x=<int>             X value of the offset [default: 0]
     --y=<int>             Y value of the offset [default: 0]
     --z=<int>             Z value of the offset [default: 1]
@@ -138,7 +138,6 @@ proc dim*(matrix: var seq[seq[RGBPixel]], transparent: bool = false) =
 
 ## Color utils
 
-
 proc makeColorGradient(frequency1, frequency2, frequency3: float32, phase1, phase2, phase3, center = 128, width = 127, num: int = 50): seq[RGBPixel]=
   result = newSeq[RGBPixel](num)
   for i in 0 ..< num:
@@ -220,6 +219,45 @@ proc walk(c: Client, height, width: int, offset: Offset) =
     let data = makePPM(height, width, matrix)
     c.sendDatagram(data, offset)
     sleep(15)
+
+proc squares(c: Client, height, width: int, offset: Offset) =
+  ## https://en.wikipedia.org/wiki/Hilbert_curve#/media/File:Hilbert_curve_production_rules!.svg
+
+  ## These are shared by closure with the inner function
+  var
+    matrix = blankMatrix(height, width, transparent=true)
+    count = 0
+
+  let palette = pastels()
+
+  proc hilbert(x, y, lg, i1, i2: int) = 
+    ## Inner function
+
+    # Core logic
+    var g = lg
+    if g == 1:
+
+      let color = palette[count mod palette.len]
+      count += 1
+      matrix.dim()
+      matrix[x][y] = color
+
+      let data = makePPM(height, width, matrix)
+      c.sendDatagram(data, offset)
+      sleep(5)
+
+      return
+
+    # Increment
+    g = g shr 1
+
+    hilbert(x+i1*g, y+i1*g, g, i1, 1-i2)
+    hilbert(x+i2*g, y+(1-i2)*g, g, i1, i2)
+    hilbert(x+(1-i1)*g, y+(1-i1)*g, g, i1, i2)
+    hilbert(x+(1-i2)*g, y+i2*g, g, 1-i1, i2)
+
+  while true:
+    hilbert(0, 0, height, 0, 0)
     
 when isMainModule:
   addHandler(newFileLogger(defaultLog, fmtStr = verboseFmtStr))
@@ -247,7 +285,7 @@ when isMainModule:
         client.walk(height, width, offset)
       of "blank":
         client.blank(height, width, offset)
+      of "squares":
+        client.squares(height, width, offset)
       else:
         echo "Unknown pattern."
-
-
