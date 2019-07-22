@@ -22,7 +22,7 @@ Options:
     --host=<string>       Host to use [default: ft.noise]
     --port=<int>          Port to use [default: 1337]
     --width=<int>         Width to use [default: 45]
-    --height=<int>        Width to use [default: 40]
+    --height=<int>        Width to use [default: 45]
     --x=<int>             X value of the offset [default: 0]
     --y=<int>             Y value of the offset [default: 0]
     --z=<int>             Z value of the offset [default: 1]
@@ -244,7 +244,7 @@ proc squares(c: Client, height, width: int, offset: Offset) =
 
       let data = makePPM(height, width, matrix)
       c.sendDatagram(data, offset)
-      sleep(5)
+      sleep(10)
 
       return
 

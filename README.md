@@ -18,7 +18,7 @@ Usage:
     nim_flaschen_taschen --version
 
 Args:
-    <pattern>             The pattern to display - one of: random, walk, blank
+    <pattern>             The pattern to display - one of: random, walk, squares, blank
 
 Options:
     --host=<string>       Host to use [default: ft.noise]
